@@ -1,4 +1,5 @@
 import React from 'react'
+import Board from './board.jsx'
 
 class MainComponent extends React.Component {
   constructor(props) {
@@ -8,7 +9,7 @@ class MainComponent extends React.Component {
   render() {
     return (
       <div>
-        firstName: {this.props.appState.currentUser.firstName}
+        <Board appState={this.props.appState} actions={this.props.actions}/>
       </div>
     )
   }

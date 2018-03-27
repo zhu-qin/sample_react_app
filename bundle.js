@@ -1086,6 +1086,24 @@ setTimeout(function () {
   });
 }, 1000);
 
+var board = [{
+  id: 1,
+  cards: [{ text: 'hello1' }, { text: 'world1' }]
+}, {
+  id: 2,
+  cards: [{ text: 'hello2' }, { text: 'world2' }]
+}, {
+  id: 3,
+  cards: [{ text: 'hello3' }, { text: 'world3' }]
+}, {
+  id: 4,
+  cards: [{ text: 'hello4' }, { text: 'world4' }]
+}];
+
+setTimeout(function () {
+  return actions.setBoard(board);
+}, 200);
+
 /***/ }),
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -18425,7 +18443,7 @@ function combineReducers(reducers) {
 function compose() {
   var fns = arguments;
   var start = arguments.length - 1;
-  return function chain() {
+  return function pipe() {
     var i = start;
     var finalResult = fns[start].apply(this, arguments);
     while (i--) {
@@ -18500,6 +18518,29 @@ function mapDispatchToActions(dispatch) {
         type: 'SET_CURRENT_USER',
         currentUser: currentUser
       });
+    },
+
+    setBoard: function setBoard(board) {
+      dispatch({
+        type: 'SET_BOARD',
+        board: board
+      });
+    },
+
+    addCard: function addCard(card, column) {
+      dispatch({
+        type: 'ADD_CARD',
+        column: column,
+        card: card
+      });
+    },
+
+    removeCard: function removeCard(card, column) {
+      dispatch({
+        type: 'REMOVE_CARD',
+        column: column,
+        card: card
+      });
     }
 
   };
@@ -18527,6 +18568,32 @@ var mainReducer = {
       default:
         return state;
     }
+  },
+
+  board: function board() {
+    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    var action = arguments[1];
+
+    switch (action.type) {
+      case 'SET_BOARD':
+        return action.board;
+        break;
+      case 'ADD_CARD':
+        action.column.cards = action.column.cards.concat(action.card);
+        var colIdx = state.indexOf(action.column);
+        state.splice(colIdx, 1, action.column);
+        return Object.assign([], state);
+        break;
+      case 'REMOVE_CARD':
+        var cardIdx = action.column.cards.indexOf(action.card);
+        action.column.cards.splice(cardIdx, 1);
+        colIdx = state.indexOf(action.column);
+        state.splice(colIdx, 1, action.column);
+        return Object.assign([], state);
+        break;
+      default:
+        return state;
+    }
   }
 };
 
@@ -18548,6 +18615,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 var _react = __webpack_require__(4);
 
 var _react2 = _interopRequireDefault(_react);
+
+var _board = __webpack_require__(33);
+
+var _board2 = _interopRequireDefault(_board);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -18572,8 +18643,7 @@ var MainComponent = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         null,
-        'firstName: ',
-        this.props.appState.currentUser.firstName
+        _react2.default.createElement(_board2.default, { appState: this.props.appState, actions: this.props.actions })
       );
     }
   }]);
@@ -18582,6 +18652,224 @@ var MainComponent = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = MainComponent;
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(4);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _column = __webpack_require__(34);
+
+var _column2 = _interopRequireDefault(_column);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Board = function (_React$Component) {
+  _inherits(Board, _React$Component);
+
+  function Board(props) {
+    _classCallCheck(this, Board);
+
+    return _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this, props));
+  }
+
+  _createClass(Board, [{
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var columns = this.props.appState.board.map(function (column) {
+        return _react2.default.createElement(_column2.default, { key: column.id, appState: _this2.props.appState, actions: _this2.props.actions, column: column });
+      });
+      return _react2.default.createElement(
+        'div',
+        { style: { display: 'flex' } },
+        columns
+      );
+    }
+  }]);
+
+  return Board;
+}(_react2.default.Component);
+
+exports.default = Board;
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(4);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _card = __webpack_require__(35);
+
+var _card2 = _interopRequireDefault(_card);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Column = function (_React$Component) {
+  _inherits(Column, _React$Component);
+
+  function Column(props) {
+    _classCallCheck(this, Column);
+
+    return _possibleConstructorReturn(this, (Column.__proto__ || Object.getPrototypeOf(Column)).call(this, props));
+  }
+
+  _createClass(Column, [{
+    key: 'addCard',
+    value: function addCard(column, e) {
+      var message = window.prompt();
+      this.props.actions.addCard({ text: message }, column);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var cards = this.props.column.cards.map(function (card) {
+        return _react2.default.createElement(_card2.default, { appState: _this2.props.appState,
+          actions: _this2.props.actions,
+          column: _this2.props.column,
+          card: card,
+          key: card.text });
+      });
+
+      return _react2.default.createElement(
+        'div',
+        { style: { border: '1px solid black', padding: '30px', marginLeft: '10px' } },
+        cards,
+        _react2.default.createElement(
+          'div',
+          { onClick: this.addCard.bind(this, this.props.column) },
+          'Add Card'
+        )
+      );
+    }
+  }]);
+
+  return Column;
+}(_react2.default.Component);
+
+exports.default = Column;
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(4);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var moveCardStyle = {
+  padding: '10px',
+  border: '1px solid black',
+  borderRadius: '3px',
+  margin: '10px',
+  cursor: 'pointer'
+};
+
+var hidden = {
+  display: 'none'
+};
+
+var Card = function (_React$Component) {
+  _inherits(Card, _React$Component);
+
+  function Card(props) {
+    _classCallCheck(this, Card);
+
+    return _possibleConstructorReturn(this, (Card.__proto__ || Object.getPrototypeOf(Card)).call(this, props));
+  }
+
+  _createClass(Card, [{
+    key: 'moveCard',
+    value: function moveCard(direction, e) {
+      var _this2 = this;
+
+      this.props.actions.removeCard(this.props.card, this.props.column);
+      var columnToAdd = this.props.appState.board.find(function (column) {
+        var moveIdx = direction === 'left' ? -1 : 1;
+        return column.id === _this2.props.column.id + moveIdx;
+      });
+      this.props.actions.addCard(this.props.card, columnToAdd);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { style: { border: '1px solid black', padding: '30px', margin: '5px', display: 'flex' } },
+        _react2.default.createElement(
+          'div',
+          { style: this.props.column.id === 1 ? hidden : moveCardStyle, onClick: this.moveCard.bind(this, 'left') },
+          "<=="
+        ),
+        this.props.card.text,
+        _react2.default.createElement(
+          'div',
+          { style: this.props.column.id === this.props.appState.board.length ? hidden : moveCardStyle, onClick: this.moveCard.bind(this, 'right') },
+          "==>"
+        )
+      );
+    }
+  }]);
+
+  return Card;
+}(_react2.default.Component);
+
+exports.default = Card;
 
 /***/ })
 /******/ ]);

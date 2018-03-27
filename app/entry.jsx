@@ -33,7 +33,6 @@ class Entry extends React.Component {
   }
 }
 
-
 const store = Redux.createStore(Redux.combineReducers(mainReducer), {})
 const actions = mapDispatchToActions(store.dispatch)
 
@@ -45,3 +44,24 @@ setTimeout(() => actions.setCurrentUser({
   firstName: 'Billy',
   lastName: 'Bob'
 }), 1000)
+
+const board = [
+  {
+    id: 1,
+    cards: [{text: 'hello1'},{text: 'world1'}]
+  },
+  {
+    id:2,
+    cards: [{text: 'hello2'},{text: 'world2'}]
+  },
+  {
+    id:3,
+    cards: [{text: 'hello3'},{text: 'world3'}]
+  },
+  {
+    id:4,
+    cards: [{text: 'hello4'},{text: 'world4'}]
+  }
+]
+
+setTimeout(() => actions.setBoard(board), 200)

@@ -59,7 +59,7 @@ function combineReducers(reducers) {
 function compose() {
   let fns = arguments
   let start = arguments.length - 1
-  return function chain() {
+  return function pipe() {
     let i = start
     let finalResult = fns[start].apply(this, arguments)
     while (i--) {
